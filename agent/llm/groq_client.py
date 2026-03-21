@@ -1,15 +1,39 @@
-from groq import Groq 
-from dotenv import load_dotenv
 import os
+from groq import Groq
+from agent.config import MODEL
+from dotenv import load_dotenv
+
 load_dotenv()
+
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+model = MODEL
 def generate_review(diff: str) -> str:
     from agent.llm.prompts import REVIEW_PROMPT
-    prompt = REVIEW_PROMPT.format(diff=diff[:8000]) #to avoid too long input
-    response = client.chat.completions.create(
-        model = "llama3-70b-8192",
-        messages = [
-            {"role": "user", "content": prompt}
-        ],
-    )
-    return response.choices[0].message.content 
+
+    if not diff.strip():
+        return "No changes found to review."
+
+    prompt = REVIEW_PROMPT.format(diff=diff[:8000])
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+        )
+
+        return response.choices[0].message.content
+
+    except Exception as e:
+        return f"Error generating review: {str(e)}"
+
+if __name__ == "__main__":
+    test_diff = """
+diff --git a/app.py b/app.py
++ def add(a, b):
++     return a + b
+"""
+
+    result = generate_review(test_diff)
+    print(result)
