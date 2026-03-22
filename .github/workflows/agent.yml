@@ -1,0 +1,30 @@
+name : apricot-agent
+on:
+  pull_request:
+    types: [opened,synchronize]
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents : read
+    steps:
+      - name: Checkout repo
+        uses : actions/checkout@v3
+      #this sets pr number automatically 
+      - name : Set PR number
+        run : echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run agent
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}   
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # ✅ auto provided by GitHub
+        run: python -m agent.main 
