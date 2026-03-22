@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses : actions/checkout@v3
+        with :
+          fetch-depth: 0
       #this sets pr number automatically 
       - name : Set PR number
         run : echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
