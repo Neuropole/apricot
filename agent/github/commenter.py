@@ -19,3 +19,4 @@ def post_comment(comment: str):
 
 if __name__ == "__main__":
     post_comment("This is a test comment from the GitHub commenter module.")
+    #  Test comment to verify that the GitHub commenter is working correctly.
