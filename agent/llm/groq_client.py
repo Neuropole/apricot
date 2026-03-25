@@ -28,6 +28,7 @@ def generate_review(diff: str) -> str:
     except Exception as e:
         return f"Error generating review: {str(e)}"
 
+#local test for generate review function
 if __name__ == "__main__":
     test_diff = """
 diff --git a/app.py b/app.py
