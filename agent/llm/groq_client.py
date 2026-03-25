@@ -14,19 +14,25 @@ def generate_review(diff: str,context : list = None) -> str:
         return "No changes found to review."
 
     # prompt = REVIEW_PROMPT.format(diff=diff[:8000])
+    MAX_CONTEXT_CHARS = 5000
+    
     '''preparing context'''
     context_text = ""
     if context:
-        context_text = "\n\n".join(context[:5]) # Include up to 5 context items(limitting)
+        combined = "\n\n".join(context) # Include up to 5 context items(limitting)
+        context_text = combined[:MAX_CONTEXT_CHARS]
     prompt = f"""
     You are an AI code reviewer. Use the provided repository context (if available) to give better insights.
 
     ---CONTEXT---
     {context_text}
+
     ---DIFF---
-    {diff[:8000]}  # Limiting the diff to the first 8000 characters for better performance.
+    {diff[:8000]} 
+
     ---TASK---
     {REVIEW_PROMPT}
+    
     """
 
     try:
