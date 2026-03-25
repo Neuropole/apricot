@@ -7,5 +7,3 @@ chromadb
 tree-sitter
 sentence-transformers
 groq
-PyGithub
-chromadb
