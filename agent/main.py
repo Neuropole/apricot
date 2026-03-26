@@ -35,7 +35,7 @@ def build_context():
 
 
 def main():
-    print("🚀 Agent started")
+    print("Agent started")
 
     # 1. Get diff
     diff = get_pr_diff()
@@ -45,34 +45,34 @@ def main():
         return
 
     # 2. Build full codebase context
-    print("📦 Building context...")
+    print("Building context...")
     chunks = build_context()
 
     # 3. Convert to embeddings
-    print("🔢 Generating embeddings...")
+    print("Generating embeddings...")
     embeddings = get_embeddings(chunks)
 
     # 4. Store embeddings
-    print("🗄️ Storing embeddings...")
+    print("Storing embeddings...")
     store_embeddings(chunks, embeddings)
 
     # 5. Convert diff → embedding
-    print("🔍 Embedding diff...")
+    print("Embedding diff...")
     query_embedding = get_embeddings([diff])[0]
 
     # 6. Retrieve relevant chunks
-    print("📡 Retrieving relevant context...")
+    print("Retrieving relevant context...")
     relevant_chunks = query_embeddings(query_embedding)
 
     # 7. Generate review (Member 2 work)
-    print("🧠 Generating review...")
+    print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
 
     # 8. Post comment (Member 3 work)
-    print("💬 Posting comment...")
+    print("Posting comment...")
     post_comment(review)
 
-    print("✅ Done")
+    print("Done")
 
 if __name__ == "__main__":
     main()
