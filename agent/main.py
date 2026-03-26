@@ -56,7 +56,7 @@ def main():
     print("Storing embeddings...")
     store_embeddings(chunks, embeddings)
 
-    # 5. Convert diff → embedding
+    # 5. Convert diff to embedding
     print("Embedding diff...")
     query_embedding = get_embeddings([diff])[0]
 
@@ -64,11 +64,11 @@ def main():
     print("Retrieving relevant context...")
     relevant_chunks = query_embeddings(query_embedding)
 
-    # 7. Generate review (Member 2 work)
+    # 7. Generate review 
     print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
 
-    # 8. Post comment (Member 3 work)
+    # 8. Post comment 
     print("Posting comment...")
     post_comment(review)
 
