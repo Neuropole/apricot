@@ -56,7 +56,7 @@ def main():
     print("Storing embeddings...")
     store_embeddings(chunks, embeddings)
 
-    # 5. Convert diff → embedding
+    # 5. Convert diff to embedding
     print("Embedding diff...")
     query_embedding = get_embeddings([diff])[0]
 
@@ -64,10 +64,11 @@ def main():
     print("Retrieving relevant context...")
     relevant_chunks = query_embeddings(query_embedding)
 
-    # 7. Generate review (Member 2 work)
+    # 7. Generate review 
     print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
 
+<<<<<<< HEAD
     # 9. generate tests
     from agent.llm.groq_client import generate_tests
     tests = generate_tests(diff, context=relevant_chunks)
@@ -75,6 +76,9 @@ def main():
     print(tests)
 
     # 8. Post comment (Member 3 work)
+=======
+    # 8. Post comment 
+>>>>>>> 82b71c0ee340d0321eb2b59865cdf4410d52585c
     print("Posting comment...")
     post_comment(review)
 
