@@ -2,6 +2,7 @@ from agent.indexing.parser import get_code_files
 from agent.indexing.chunker import chunk_code
 from agent.indexing.embedder import get_embeddings
 from agent.indexing.vector_store import store_embeddings, query_embeddings
+from agent.llm.test_generator import generate_tests
 
 import subprocess
 from agent.llm.groq_client import generate_review
@@ -70,11 +71,10 @@ def main():
 
     # 8. Generate tests
     print("Generating tests...")
-    from agent.llm.test_generator import generate_tests
     tests = generate_tests(diff, context=relevant_chunks)
 
     # 9. Combine output
-    final_output = review + "\n\n---\n\n### Suggested Tests\n" + tests
+    final_output = f"{review}\n\n---\n\n### Suggested Tests\n{tests}"
 
     print("\n FINAL OUTPUT:\n")
     print(final_output)
