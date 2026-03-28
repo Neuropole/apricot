@@ -1,6 +1,7 @@
-REVIEW_PROMPT = """ 
-You are a senior code reviewer.
-Analyze the following git diff and respond STRICTLY in this format:
+REVIEW_PROMPT = """
+Analyze the code changes using the provided DIFF and CONTEXT.
+
+Return output STRICTLY in this format:
 
 ### Bugs
 - List any bugs (or write "None")
@@ -9,13 +10,11 @@ Analyze the following git diff and respond STRICTLY in this format:
 - Code quality improvements
 
 ### Suggestions
-- Better practices or optimizations
+- Best practices or optimizations
 
-If everything looks good, say: "Code looks good ✅"
-format output clearly using bullet points.
-
-Keep it concise.
-
-Diff:
-{diff}
+Rules:
+- Be concise
+- Do NOT repeat the diff
+- Use context if helpful
+- If everything looks good, say: "Code looks good ✅"
 """
