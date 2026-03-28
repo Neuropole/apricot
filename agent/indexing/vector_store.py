@@ -16,4 +16,18 @@ def query_embeddings(query_embedding, k=5):
         query_embeddings=[query_embedding],
         n_results=k
     )
-    return results["documents"][0]
+
+    docs = results.get("documents", [[]])[0]
+
+    # remove empty / tiny chunks
+    cleaned = [doc for doc in docs if doc and len(doc.strip()) > 20]
+
+    # 🔥 prioritize useful code (functions/classes)
+    filtered = []
+    for doc in cleaned:
+        if "def " in doc or "class " in doc:
+            filtered.append(doc)
+
+    print(f"Retrieved {len(filtered)} relevant chunks")
+
+    return filtered[:k]
