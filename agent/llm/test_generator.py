@@ -1,4 +1,4 @@
-from agent.llm.groq_client import generate_review
+from agent.llm.groq_client import client, model
 def generate_tests(diff:str,context:list =None)->str:
     context_text = ""
     if context:
