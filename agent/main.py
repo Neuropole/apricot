@@ -68,9 +68,20 @@ def main():
     print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
 
-    # 8. Post comment 
+    # 8. Generate tests
+    print("Generating tests...")
+    from agent.llm.test_generator import generate_tests
+    tests = generate_tests(diff, context=relevant_chunks)
+
+    # 9. Combine output
+    final_output = review + "\n\n---\n\n### Suggested Tests\n" + tests
+
+    print("\n FINAL OUTPUT:\n")
+    print(final_output)
+
+    # 10. Post comment
     print("Posting comment...")
-    post_comment(review)
+    post_comment(final_output)
 
     print("Done")
 
