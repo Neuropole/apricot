@@ -68,19 +68,15 @@ def main():
     print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
 
-<<<<<<< HEAD
+    # 8. Post comment 
+    print("Posting comment...")
+    post_comment(review)
+
     # 9. generate tests
     from agent.llm.groq_client import generate_tests
     tests = generate_tests(diff, context=relevant_chunks)
     print("Generated tests:")
     print(tests)
-
-    # 8. Post comment (Member 3 work)
-=======
-    # 8. Post comment 
->>>>>>> 82b71c0ee340d0321eb2b59865cdf4410d52585c
-    print("Posting comment...")
-    post_comment(review)
 
     print("Done")
 
