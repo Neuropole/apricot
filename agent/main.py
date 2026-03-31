@@ -3,8 +3,8 @@ from agent.indexing.chunker import chunk_code
 from agent.indexing.embedder import get_embeddings
 from agent.indexing.vector_store import store_embeddings, query_embeddings
 from agent.llm.test_generator import generate_tests
-
-import subprocess
+from agent.github.committer import commit_tests
+import subprocess , os
 from agent.llm.groq_client import generate_review
 from agent.github.commenter import post_comment
 def get_pr_diff():
@@ -72,6 +72,10 @@ def main():
     # 8. Generate tests
     print("Generating tests...")
     tests = generate_tests(diff, context=relevant_chunks)
+    os.makedirs("tests", exist_ok=True)
+    with open("tests/test_generated.py", "w", encoding="utf-8") as f:
+        f.write(tests) # Save generated tests to a file for potential commit
+    print("Generated tests saved to tests/test_generated.py")
 
     # 9. Combine output
     final_output = f"{review}\n\n---\n\n### Suggested Tests\n{tests}"
@@ -82,6 +86,10 @@ def main():
     # 10. Post comment
     print("Posting comment...")
     post_comment(final_output)
+
+    # 11. Commit tests 
+    print("Committing tests...")
+    commit_tests()
 
     print("Done")
 
