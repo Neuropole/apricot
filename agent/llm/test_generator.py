@@ -34,7 +34,12 @@ def generate_tests(diff:str,context:list =None)->str:
                 }
             ],
           )
-        return response.choices[0].message.content.strip()
+        content =response.choices[0].message.content.strip()
+        if content.startswith("```"):
+            content = content.split("```")[1]  # Extract code from markdown
+            if content.startswith("python"):
+                content = content[len("python"):]  # Remove language specifier
+        return content.strip()
     except Exception as e:
         return f"Error generating tests:{str(e)}"
     
