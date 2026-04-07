@@ -110,7 +110,10 @@ def main():
 
     # 12. Commit tests 
     print("Committing tests...")
-    commit_tests()
+    try:
+        commit_tests()
+    except Exception as e:
+        print(f"Commit failed: {e}")
 
     print("Done")
 
