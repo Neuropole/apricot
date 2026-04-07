@@ -68,7 +68,9 @@ def main():
 
     # 7. Infer intent
     print("Inferring intent...")
-    intent = infer_intent(diff)
+    if not intent or "error" in intent:
+        print("Intent extraction failed, using fallback")
+        intent = {"purpose": "", "properties": [], "edge_cases": []}
 
     print("Intent extracted:")
     print(intent)
