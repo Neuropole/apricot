@@ -78,6 +78,8 @@ def main():
     # 8. Generate review 
     print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
+    print("Review generated:")
+    print(review)
 
     # 9. Generate tests
     print("Generating tests...")
