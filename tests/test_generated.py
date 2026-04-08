@@ -1,5 +1,5 @@
 import pytest
-from your_module import store_embeddings, query_embeddings
+from your_module import store_embeddings, query_embeddings, client
 
 def test_store_embeddings():
     chunks = ["chunk1", "chunk2"]
