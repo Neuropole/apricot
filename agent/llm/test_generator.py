@@ -1,12 +1,9 @@
 from agent.llm.groq_client import client, model
-
-def generate_tests(diff: str, context: list = None, intent: dict = None) -> str:
-    
+def generate_tests(diff:str,context:list =None, intent:dict = None)->str:
     context_text = ""
     if context:
-        context_text = "\n\n".join(context[:5])
+        context_text = "\n\n".join(context[:5])  # Include only the first 5 chunks for context
 
-    # Preparing intent text    
     intent_text = ""
     if intent:
         properties = ", ".join(intent.get("properties", []))
