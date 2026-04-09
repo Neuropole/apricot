@@ -1,8 +1,24 @@
 from agent.llm.groq_client import client, model
-def generate_tests(diff:str,context:list =None)->str:
+def generate_tests(diff:str,context:list =None, intent:dict = None)->str:
     context_text = ""
     if context:
         context_text = "\n\n".join(context[:5])  # Include only the first 5 chunks for context
+
+    intent_text = ""
+    if intent:
+        properties = ", ".join(intent.get("properties", []))
+        edge_cases = ", ".join(intent.get("edge_cases", []))
+        intent_text = f"""
+Purpose:
+{intent.get("purpose", "")}
+
+Properties:
+{properties}
+
+Edge Cases:
+{edge_cases}
+"""
+
     prompt = f"""
     You are a senior software engineer.
     Generate concise pytest test cases for the given code diff.
@@ -14,6 +30,9 @@ def generate_tests(diff:str,context:list =None)->str:
     - Focus on edge cases and core logic
     - NO explanations, NO extra text
 
+
+    ---INTENT---
+    {intent_text}
 
     ---CONTEXT---
     {context_text}
