@@ -8,6 +8,7 @@ def generate_tests(diff:str,context:list =None, intent:dict = None)->str:
     if intent:
         properties = ", ".join(intent.get("properties", []))
         edge_cases = ", ".join(intent.get("edge_cases", []))
+
         intent_text = f"""
 Purpose:
 {intent.get("purpose", "")}
@@ -19,46 +20,49 @@ Edge Cases:
 {edge_cases}
 """
 
+
     prompt = f"""
-    You are a senior software engineer.
-    Generate concise pytest test cases for the given code diff.
+You are a senior software engineer.
 
-    STRICT RULES:
-    - Output only code
-    - Max  5 test functions
-    - keep tests short
-    - Focus on edge cases and core logic
-    - NO explanations, NO extra text
+Generate pytest test cases using:
+- Code diff
+- Repository context
+- Function intent
 
+STRICT RULES:
+- Output ONLY Python code
+- Max 5 test functions
+- Keep tests short
+- Focus on edge cases and properties
+- NO explanations
+- NO markdown (no ```)
 
-    ---INTENT---
-    {intent_text}
+---INTENT---
+{intent_text}
 
-    ---CONTEXT---
-    {context_text}
+---CONTEXT---
+{context_text}
 
-    ---DIFF---
-    {diff}
-    """
-
+---DIFF---
+{diff}
+"""
 
     try:
         response = client.chat.completions.create(
-            model = model,
-            messages = [
-                
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+            model=model,
+            messages=[
+                {"role": "user", "content": prompt}
             ],
-          )
-        content =response.choices[0].message.content.strip()
+        )
+
+        content = response.choices[0].message.content.strip()
+        #cleaning the markdown if added by model
         if content.startswith("```"):
-            content = content.split("```")[1]  # Extract code from markdown
+            content = content.split("```")[1]
             if content.startswith("python"):
-                content = content[len("python"):]  # Remove language specifier
+                content = content[len("python"):]
+
         return content.strip()
+
     except Exception as e:
-        return f"Error generating tests:{str(e)}"
-    
+        return f"Error generating tests: {str(e)}"

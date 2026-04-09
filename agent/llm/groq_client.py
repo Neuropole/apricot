@@ -48,6 +48,38 @@ def generate_review(diff: str,context : list = None) -> str:
     except Exception as e:
         return f"Error generating review: {str(e)}"
 
+def infer_intent(diff: str) -> dict:
+    from agent.llm.prompts import INTENT_PROMPT
+    import json
+
+    prompt  = INTENT_PROMPT.replace("{diff}", diff[:8000]) #changed format->replace
+    try:
+        response = client.chat.completions.create(
+            model = model,
+            messages = [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+        content = response.choices[0].message.content.strip()
+
+        #cleaning the markdown if added by model
+        if content.startswith("```"):
+            content = content.split("```")[1]  # Extract code from markdown
+            if content.startswith("json"):
+                content = content[len("json"):]  # Remove language specifier    
+        return json.loads(content)
+    except Exception as e:
+        return {
+            "purpose": "",
+            "properties": [],
+            "edge_cases": [],
+            "error": str(e)
+
+        }
+
 #local test for generate review function
 if __name__ == "__main__":
     test_diff = """
@@ -64,32 +96,3 @@ diff --git a/app.py b/app.py
     result = generate_review(test_diff, context=test_context) #added conetxt parameter (kindly see @pleasingsunlight)
     print(result)
 
-def infer_intent(diff: str) -> dict:
-    from agent.llm.prompts import INTENT_PROMPT
-    import json
-
-    prompt = INTENT_PROMPT.replace("{diff}", diff[:8000])
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
-        content = response.choices[0].message.content.strip()
-
-        if content.startswith("```"):
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[len("json"):]
-        return json.loads(content)
-    except Exception as e:
-        return {
-            "purpose": "",
-            "properties": [],
-            "edge_cases": [],
-            "error": str(e)
-        }
