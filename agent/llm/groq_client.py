@@ -52,7 +52,7 @@ def infer_intent(diff: str) -> dict:
     from agent.llm.prompts import INTENT_PROMPT
     import json
 
-    prompt  = INTENT_PROMPT.format(diff=diff[:8000])
+    prompt  = INTENT_PROMPT.replace(diff=diff[:8000]) #changed format->replace
     try:
         response = client.chat.completions.create(
             model = model,
