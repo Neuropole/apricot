@@ -33,10 +33,10 @@ STRICT RULES:
 - Keep it concise
 
 FORMAT:
-{{"purpose": "...",
+{"purpose": "...",
   "properties": ["...", "..."],
   "edge_cases": ["...", "..."]
-}}
+}
 
 ---DIFF---
 {diff}
