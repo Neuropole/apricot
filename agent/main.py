@@ -78,7 +78,7 @@ def main():
     print("Generated tests saved to tests/test_generated.py")
 
     # 9. Combine output
-    final_output = f"{review}\n\n---\n\n### Suggested Tests\n{tests}"
+    final_output = f"{review}\n\n---\n\n### Suggested Tests\n```bash\n{tests}\n```"
 
     print("\n FINAL OUTPUT:\n")
     print(final_output)
