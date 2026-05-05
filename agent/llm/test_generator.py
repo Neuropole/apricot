@@ -1,4 +1,24 @@
+import re
 from agent.llm.groq_client import client, model
+
+
+def _normalize_generated_tests(content: str) -> str:
+    fenced_match = re.search(r"```(?:[a-zA-Z0-9_+-]+)?\n([\s\S]*?)```", content)
+    if fenced_match:
+        content = fenced_match.group(1)
+
+    content = content.strip()
+    lines = content.splitlines()
+
+    if lines and re.fullmatch(r"[a-zA-Z0-9_+-]+", lines[0].strip()):
+        lines = lines[1:]
+
+    while lines and lines[0].strip().startswith("pytest "):
+        lines = lines[1:]
+
+    return "\n".join(lines).strip()
+
+
 def generate_tests(diff:str,context:list =None)->str:
     context_text = ""
     if context:
@@ -8,11 +28,13 @@ def generate_tests(diff:str,context:list =None)->str:
     Generate concise pytest test cases for the given code diff.
 
     STRICT RULES:
-    - Output only code
+    - Output only valid Python pytest test code for tests/test_generated.py
     - Max  5 test functions
     - keep tests short
     - Focus on edge cases and core logic
     - NO explanations, NO extra text
+    - NO markdown code fences
+    - NO shell commands (for example: pytest tests/test_generated.py)
 
 
     ---CONTEXT---
@@ -35,11 +57,7 @@ def generate_tests(diff:str,context:list =None)->str:
             ],
           )
         content =response.choices[0].message.content.strip()
-        if content.startswith("```"):
-            content = content.split("```")[1]  # Extract code from markdown
-            if content.startswith("python"):
-                content = content[len("python"):]  # Remove language specifier
-        return content.strip()
+        return _normalize_generated_tests(content)
     except Exception as e:
         return f"Error generating tests:{str(e)}"
     
