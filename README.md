@@ -155,7 +155,7 @@ Apricot produces:
 
 ---
 
-## Animated section
+
 
 ### CI pulse
 
