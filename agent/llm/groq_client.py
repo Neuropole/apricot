@@ -18,10 +18,10 @@ EMPTY_INTENT: dict[str, Any] = {
     "properties": [],
     "edge_cases": [],
 }
-def generate_review(diff: str,context : list = None) -> str:
+def generate_review(diff: str | None, context: list[str] | None = None) -> str:
     from agent.llm.prompts import REVIEW_PROMPT
 
-    if not diff.strip():
+    if not diff or not diff.strip():
         return "No changes found to review."
 
     # prompt = REVIEW_PROMPT.format(diff=diff[:8000])
