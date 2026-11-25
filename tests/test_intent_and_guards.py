@@ -165,6 +165,28 @@ def test_generate_tests_reports_empty_model_response(monkeypatch):
     assert result.startswith("Error generating tests:")
 
 
+def test_clean_json_response_strips_simple_fence():
+    raw = '```json\n{"purpose": "add numbers", "properties": [], "edge_cases": []}\n```'
+    assert groq_client._clean_json_response(raw) == (
+        '{"purpose": "add numbers", "properties": [], "edge_cases": []}'
+    )
+
+
+def test_clean_json_response_keeps_inner_fences():
+    raw = '````\n{"purpose": "parse ``` blocks"}\n````'
+    assert groq_client._clean_json_response(raw) == '{"purpose": "parse ``` blocks"}'
+
+
+def test_clean_json_response_without_fence_returns_content():
+    raw = '{"purpose": "x"}'
+    assert groq_client._clean_json_response(raw) == raw
+
+
+def test_clean_json_response_returns_content_if_fence_unclosed():
+    raw = '```json\n{"purpose": "x"}'
+    assert groq_client._clean_json_response(raw) == raw.strip()
+
+
 def test_generate_tests_normalizes_fenced_response(monkeypatch):
     _use_test_client(monkeypatch, "```python\ndef test_ok():\n    assert True\n```")
 
