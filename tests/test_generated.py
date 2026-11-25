@@ -1,7 +1,7 @@
 import pytest
-
 from agent.llm import groq_client, test_generator
 from types import SimpleNamespace
+
 
 class FakeClient:
     def __init__(self, content):
@@ -20,6 +20,7 @@ class FakeClient:
             completions=SimpleNamespace(create=self._create)
         )
 
+
 @pytest.mark.parametrize(
     "input_value,expected",
     [
@@ -35,11 +36,12 @@ def test_as_str_list_various_inputs(input_value, expected):
     result = groq_client._as_str_list(input_value)
     assert result == expected
 
+
 @pytest.mark.parametrize(
     "content,expected",
     [
         ("```json\n{\"a\":1}\n```", '{"a":1}'),
-        ("```python\nprint('hi')\n```", "print('hi')"),
+        ("```python\nprint(\"hi\")\n```", 'print("hi")'),
         ("no fence", "no fence"),
         ("```json\n{\"key\": \"value\"}\n```", '{"key": "value"}'),
         ("```json\n{\"key\": \"value\"}", '{"key": "value"}'),
@@ -48,15 +50,15 @@ def test_as_str_list_various_inputs(input_value, expected):
 def test_clean_json_response(content, expected):
     assert groq_client._clean_json_response(content) == expected
 
+
 def test_normalize_intent_missing_and_wrong_types(monkeypatch):
-    # missing keys
     intent = {"purpose": None, "properties": None, "edge_cases": "input"}
     result = groq_client._normalize_intent(intent)
     assert result["purpose"] == ""
     assert result["properties"] == []
     assert result["edge_cases"] == ["input"]
-    # non-dict input
     assert groq_client._normalize_intent("invalid") == groq_client.EMPTY_INTENT
+
 
 def test_generate_tests_context_truncation(monkeypatch):
     fake = FakeClient("def test_ok():\n    assert True")
@@ -65,11 +67,11 @@ def test_generate_tests_context_truncation(monkeypatch):
     result = test_generator.generate_tests("+ def f(): return 1", context=context, intent=None)
     assert result == "def test_ok():\n    assert True"
     prompt = fake.calls[0]["messages"][0]["content"]
-    # Only first 5 chunks should be present
     for i in range(5):
         assert f"chunk{i}" in prompt
     for i in range(5, 10):
         assert f"chunk{i}" not in prompt
+
 
 def test_generate_tests_empty_diff_error(monkeypatch):
     fake = FakeClient("def test_ok():\n    assert True")
