@@ -61,12 +61,28 @@ def generate_review(diff: str | None, context: list[str] | None = None) -> str:
 
 
 def _clean_json_response(content: str) -> str:
-    """Strip an optional markdown code fence from a model response."""
+    """Strip only the outer markdown fence, keeping any inner fences.
+
+    The closing fence must appear on its own line, must match the opening
+    fence family (backticks or tildes), and must be at least as long as the
+    opening fence.
+    """
     content = content.strip()
-    fenced_match = re.search(r"```(?:[a-zA-Z0-9_+-]+)?\n([\s\S]*?)```", content)
-    if fenced_match:
-        content = fenced_match.group(1)
-    return content.strip()
+    opening = re.match(r"`{3,}|~{3,}", content)
+    if not opening:
+        return content
+    marker = opening.group(0)
+    family = marker[0]
+    lines = content.split("\n")
+    for idx in range(1, len(lines)):
+        line = lines[idx].strip()
+        if (
+            line.startswith(family * 3)
+            and len(line) >= len(marker)
+            and set(line) == {family}
+        ):
+            return "\n".join(lines[1:idx]).strip()
+    return content
 
 
 def _as_str_list(value: Any) -> list[str]:
