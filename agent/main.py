@@ -81,10 +81,14 @@ def main():
     # 9. Generate tests
     print("Generating tests...")
     tests = generate_tests(diff, context=relevant_chunks, intent=intent)
-    os.makedirs("tests", exist_ok=True)
-    with open("tests/test_generated.py", "w", encoding="utf-8") as f:
-        f.write(tests) # Save generated tests to a file for potential commit
-    print("Generated tests saved to tests/test_generated.py")
+    tests_generated = not tests.startswith("Error generating tests:")
+    if not tests_generated:
+        print("Test generation failed, skipping write and commit:", tests)
+    else:
+        os.makedirs("tests", exist_ok=True)
+        with open("tests/test_generated.py", "w", encoding="utf-8") as f:
+            f.write(tests)  # Save generated tests to a file for potential commit
+        print("Generated tests saved to tests/test_generated.py")
 
     # 10. Combine output
     final_output = f"{review}\n\n---\n\n### Suggested Tests\n```bash\n{tests}\n```"
@@ -96,9 +100,10 @@ def main():
     print("Posting comment...")
     post_comment(final_output)
 
-    # 12. Commit tests 
-    print("Committing tests...")
-    commit_tests()
+    if tests_generated:
+        # 12. Commit tests 
+        print("Committing tests...")
+        commit_tests()
 
     print("Done")
 
