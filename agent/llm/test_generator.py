@@ -108,7 +108,10 @@ def generate_tests(
         content = response.choices[0].message.content
         if not content:
             raise ValueError("Empty response from model")
-        return _normalize_generated_tests(content)
+        tests = _normalize_generated_tests(content)
+        if not tests:
+            raise ValueError("Empty response from model")
+        return tests
     except Exception as e:
         return f"Error generating tests: {str(e)}"
     
