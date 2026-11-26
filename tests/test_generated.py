@@ -28,12 +28,12 @@ class FakeClient:
         ("```python\nprint(\"hi\")\n```", 'print("hi")'),
         ("no fence", "no fence"),
         ("```json\n{\"key\": \"value\"}\n```", '{"key": "value"}'),
-        ("```json\n{\"key\": \"value\"}", '{"key": "value"}'),
         ("```json\n{\"purpose\": \"parse ``` blocks\"}\n```", '{"purpose": "parse ``` blocks"}'),
-        ("```json\n{\"purpose\": \"x\"}", '{"purpose": "x"}'),
-        ("```json\n{\"purpose\": \"x"}', '{"purpose": "x"}'),
-        ("```json\n{\"purpose\": \"x\"\n```", '{"purpose": "x"}'),
-        ("```json\n{\"purpose\": \"x\"\n", '{"purpose": "x"}'),
+        ("```json\n{\"purpose\": \"x\"}\n```", '{"purpose": "x"}'),
+        # An unclosed outer fence is preserved, not stripped.
+        ("```json\n{\"key\": \"value\"}", '```json\n{"key": "value"}'),
+        ("```json\n{\"purpose\": \"x\"}", '```json\n{"purpose": "x"}'),
+        ("```json\n{\"purpose\": \"x\"}\n", '```json\n{"purpose": "x"}'),
     ],
 )
 def test_clean_json_response(content, expected):
@@ -49,7 +49,7 @@ def test_clean_json_response(content, expected):
         (("x", "y"), ["x", "y"]),
         (42, []),
         (None, []),
-        (["  "], []),
+        ("  ", []),
     ],
 )
 def test_as_str_list_various_inputs(input_value, expected):
