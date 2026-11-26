@@ -81,7 +81,7 @@ def main():
     # 9. Generate tests
     print("Generating tests...")
     tests = generate_tests(diff, context=relevant_chunks, intent=intent)
-    tests_generated = not tests.startswith("Error generating tests:")
+    tests_generated = bool(tests.strip()) and not tests.startswith("Error generating tests:")
     if not tests_generated:
         print("Test generation failed, skipping write and commit:", tests)
     else:
