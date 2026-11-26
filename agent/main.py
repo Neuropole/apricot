@@ -5,7 +5,7 @@ from agent.indexing.vector_store import store_embeddings, query_embeddings
 from agent.llm.test_generator import generate_tests
 from agent.github.committer import commit_tests
 import subprocess , os
-from agent.llm.groq_client import generate_review
+from agent.llm.groq_client import generate_review, infer_intent
 from agent.github.commenter import post_comment
 def get_pr_diff():
     try:
@@ -65,31 +65,45 @@ def main():
     print("Retrieving relevant context...")
     relevant_chunks = query_embeddings(query_embedding)
 
-    # 7. Generate review 
+    # 7. Infer intent
+    print("Inferring intent...")
+    intent = infer_intent(diff)
+    if not intent or "error" in intent:
+        print("Intent extraction failed, using empty intent")
+        intent = {"purpose": "", "properties": [], "edge_cases": []}
+    else:
+        print("Intent inferred:", intent.get("purpose") or "(no purpose)")
+
+    # 8. Generate review 
     print("Generating review...")
     review = generate_review(diff, context=relevant_chunks)
 
-    # 8. Generate tests
+    # 9. Generate tests
     print("Generating tests...")
-    tests = generate_tests(diff, context=relevant_chunks)
-    os.makedirs("tests", exist_ok=True)
-    with open("tests/test_generated.py", "w", encoding="utf-8") as f:
-        f.write(tests) # Save generated tests to a file for potential commit
-    print("Generated tests saved to tests/test_generated.py")
+    tests = generate_tests(diff, context=relevant_chunks, intent=intent)
+    tests_generated = bool(tests.strip()) and not tests.startswith("Error generating tests:")
+    if not tests_generated:
+        print("Test generation failed, skipping write and commit:", tests)
+    else:
+        os.makedirs("tests", exist_ok=True)
+        with open("tests/test_generated.py", "w", encoding="utf-8") as f:
+            f.write(tests)  # Save generated tests to a file for potential commit
+        print("Generated tests saved to tests/test_generated.py")
 
-    # 9. Combine output
+    # 10. Combine output
     final_output = f"{review}\n\n---\n\n### Suggested Tests\n```bash\n{tests}\n```"
 
     print("\n FINAL OUTPUT:\n")
     print(final_output)
 
-    # 10. Post comment
+    # 11. Post comment
     print("Posting comment...")
     post_comment(final_output)
 
-    # 11. Commit tests 
-    print("Committing tests...")
-    commit_tests()
+    if tests_generated:
+        # 12. Commit tests 
+        print("Committing tests...")
+        commit_tests()
 
     print("Done")
 
