@@ -193,3 +193,43 @@ def test_generate_tests_normalizes_fenced_response(monkeypatch):
     result = test_generator.generate_tests("+ def f(): return 1")
 
     assert result == "def test_ok():\n    assert True"
+
+
+def test_infer_intent_returns_fresh_lists(monkeypatch):
+    _use_intent_client(monkeypatch, "should not be used")
+
+    first = groq_client.infer_intent(None)
+    first["properties"].append("leaked")
+
+    second = groq_client.infer_intent(None)
+
+    assert second["properties"] == []
+    assert groq_client.EMPTY_INTENT["properties"] == []
+
+
+def test_infer_intent_error_returns_fresh_lists(monkeypatch):
+    _use_intent_client(monkeypatch, "this is not json")
+
+    first = groq_client.infer_intent("+ def f(): return 1")
+    assert first["error"]
+    first["edge_cases"].append("leaked")
+
+    assert groq_client.EMPTY_INTENT["edge_cases"] == []
+    assert groq_client.infer_intent(None)["edge_cases"] == []
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "   ",
+        "\n\n",
+        "```python\n\n```",
+        "```python\n   \n```",
+    ],
+)
+def test_generate_tests_reports_blank_model_response(monkeypatch, content):
+    _use_test_client(monkeypatch, content)
+
+    result = test_generator.generate_tests("+ def f(): return 1")
+
+    assert result.startswith("Error generating tests:")
