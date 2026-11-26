@@ -18,6 +18,11 @@ EMPTY_INTENT: dict[str, Any] = {
     "properties": [],
     "edge_cases": [],
 }
+
+
+def _empty_intent() -> dict[str, Any]:
+    """Return a fresh empty intent so callers never share mutable lists."""
+    return {"purpose": "", "properties": [], "edge_cases": []}
 def generate_review(diff: str | None, context: list[str] | None = None) -> str:
     from agent.llm.prompts import REVIEW_PROMPT
 
@@ -96,7 +101,7 @@ def _as_str_list(value: Any) -> list[str]:
 def _normalize_intent(intent: Any) -> dict[str, Any]:
     """Coerce an arbitrary model response into the expected intent shape."""
     if not isinstance(intent, dict):
-        return dict(EMPTY_INTENT)
+        return _empty_intent()
 
     purpose = intent.get("purpose") or ""
     normalized: dict[str, Any] = {
@@ -118,7 +123,7 @@ def infer_intent(diff: str | None) -> dict[str, Any]:
     from agent.llm.prompts import INTENT_PROMPT
 
     if not diff or not diff.strip():
-        return dict(EMPTY_INTENT)
+        return _empty_intent()
 
     prompt = INTENT_PROMPT.replace("{diff}", diff[:8000])
 
@@ -134,7 +139,7 @@ def infer_intent(diff: str | None) -> dict[str, Any]:
             raise ValueError("Empty response from model")
         return _normalize_intent(json.loads(_clean_json_response(content)))
     except Exception as e:
-        return {**EMPTY_INTENT, "error": str(e)}
+        return {**_empty_intent(), "error": str(e)}
 
 
 #local test for generate review function
